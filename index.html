@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logarithm</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <link rel="icon"  href="/images/logo.png">
+    <style>
+        :root {
+            --accent: #FF5A5F;
+            --bg: #0A0A0A;
+            --text: #FFFFFF;
+            --text-dim: #A0A0A0;
+            --surface: #161616;
+            --surface-hover: #202020;
+            --border: #2A2A2A;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        nav {
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo {
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255,90,95,0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            max-width: 800px;
+            background: linear-gradient(to right, #fff, #a0a0a0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: var(--text-dim);
+            max-width: 600px;
+            margin-bottom: 40px;
+        }
+
+        .demo {
+            padding: 120px 0;
+        }
+
+        .demo h2 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .demo-subtext {
+            color: var(--text-dim);
+            margin-bottom: 48px;
+            font-size: 18px;
+        }
+
+        .demo-box {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .demo-nav {
+            display: flex;
+            gap: 2px;
+            padding: 6px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .demo-tab {
+            padding: 12px 24px;
+            color: var(--text-dim);
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .demo-tab:hover {
+            color: var(--text);
+            background: var(--surface-hover);
+        }
+
+        .demo-tab.active {
+            color: var(--text);
+            background: var(--accent);
+        }
+
+        .demo-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            padding: 32px;
+        }
+
+        .log-section {
+            background: var(--surface-hover);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .log-box {
+            width: 100%;
+            height: 400px;
+            padding: 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #A0A0A0;
+            font-family: 'SF Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            resize: none;
+            margin-bottom: 20px;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: var(--text);
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .results {
+            display: none;
+            background: var(--surface-hover);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .metric-label {
+            font-size: 13px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+            font-feature-settings: "tnum";
+        }
+
+        .chart-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .insights {
+            display: grid;
+            gap: 16px;
+        }
+
+        .insight {
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .insight h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .insight p {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        .insight.error {
+            border-left: 3px solid var(--accent);
+        }
+
+        .insight.warning {
+            border-left: 3px solid #FFB800;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 48px;
+            }
+            
+            .demo-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 36px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container nav-content">
+            <a href="#" class="logo">log<span>.</span>arithm</a>
+            <div class="nav-links">
+                <a href="#demo">Demo</a>
+                <a href="#features">Features</a>
+                <!-- <a href="#pricing">Pricing</a> -->
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Understanding logs shouldn't require a PhD.</h1>
+            <p>Instant insights from your log data. No more digging through endless files or complex queries.</p>
+        </div>
+    </section>
+
+    <section id="demo" class="demo">
+        <div class="container">
+            <h2>See it in action</h2>
+            <p class="demo-subtext">Watch our engine analyze complex log patterns in milliseconds</p>
+
+            <div class="demo-box">
+                <div class="demo-nav">
+                    <button class="demo-tab active" data-type="tech">Web Services</button>
+                    <button class="demo-tab" data-type="ecommerce">E-commerce</button>
+                    <button class="demo-tab" data-type="manufacturing">Manufacturing</button>
+                </div>
+
+                <div class="demo-content">
+                    <div class="log-section">
+                        <textarea id="logInput" class="log-box" readonly></textarea>
+                        <button class="analyze-btn">Analyze Logs</button>
+                    </div>
+
+                    <div class="results">
+                        <div class="metrics">
+                            <div class="metric">
+                                <div class="metric-label">Error Rate</div>
+                                <div class="metric-value">4.2%</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">CPU Load</div>
+                                <div class="metric-value">85%</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-label">Memory</div>
+                                <div class="metric-value">78%</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="anomalyChart"></canvas>
+                        </div>
+
+                        <div class="insights">
+                            <div class="insight error">
+                                <h4>Critical Pattern: Database Connectivity</h4>
+                                <p>Recurring database connection issues detected. Possible memory leak in connection pool.</p>
+                            </div>
+                            <div class="insight warning">
+                                <h4>Performance Alert</h4>
+                                <p>High memory usage coincides with transaction failures. Consider scaling resources.</p>
+                            </div>
+                            <div class="insight">
+                                <h4>System Health</h4>
+                                <p>API rate limits and cache performance need attention.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Key Features</h2>
+            <p class="demo-subtext">Powerful capabilities that transform how you handle logs</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI-Powered Analysis</h3>
+                    <p class="feature-desc">Advanced machine learning algorithms detect patterns, anomalies, and potential issues before they impact your business.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3 class="feature-title">Privacy First</h3>
+                    <p class="feature-desc">End-to-end encryption and local processing ensure your sensitive log data never leaves your secure environment.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Real-time Insights</h3>
+                    <p class="feature-desc">Instant analysis and visualization of log patterns, with customizable dashboards and alerts.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="feature-title">Cost Impact Analysis</h3>
+                    <p class="feature-desc">Understand the financial impact of system issues with automated cost estimation and ROI calculations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Root Cause Analysis</h3>
+                    <p class="feature-desc">Automated identification of underlying issues with detailed impact analysis and resolution recommendations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-title">Custom Integrations</h3>
+                    <p class="feature-desc">Seamless integration with your existing tools and workflows, including major cloud providers and monitoring systems.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        .features {
+            padding: 120px 0;
+            background: var(--surface);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-top: 48px;
+        }
+
+        .feature-card {
+            background: var(--surface-hover);
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .feature-desc {
+            color: var(--text-dim);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <script>
+        // Initialize the app namespace and all functionality after DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.app = (() => {
+                const logData = {
+                    tech: `2024-03-15 10:30:12 [INFO] Server started on port 3000
+2024-03-15 10:30:15 [ERROR] Failed to connect to database - retrying (attempt 1/3)
+2024-03-15 10:30:16 [WARN] High memory usage detected (85% used)
+2024-03-15 10:30:17 [INFO] Database connection established
+2024-03-15 10:30:20 [ERROR] Transaction failed: ORDER-123 - Timeout
+2024-03-15 10:30:22 [INFO] Processing payment for user: john_doe
+2024-03-15 10:30:23 [ERROR] Payment gateway timeout
+2024-03-15 10:30:25 [WARN] API rate limit approaching (80%)
+2024-03-15 10:31:00 [INFO] Successfully processed ORDER-124
+2024-03-15 10:31:05 [ERROR] Cache miss rate exceeds threshold
+2024-03-15 10:31:10 [WARN] CPU utilization spike detected`,
+                    ecommerce: `2024-03-15 10:30:10 [INFO] E-commerce platform initialized
+2024-03-15 10:30:12 [ERROR] Shopping cart abandonment: CART-456
+2024-03-15 10:30:15 [WARN] High traffic detected on product page: PROD-789
+2024-03-15 10:30:18 [ERROR] Payment processing failed for order: ORD-101
+2024-03-15 10:30:20 [INFO] New product added to inventory: SKU-123
+2024-03-15 10:30:25 [WARN] Low stock alert: SKU-456 (5 units remaining)
+2024-03-15 10:30:30 [ERROR] Checkout process timeout: SESSION-789
+2024-03-15 10:30:35 [INFO] Price update batch completed: 1000 products
+2024-03-15 10:30:40 [WARN] Multiple failed login attempts: user_123
+2024-03-15 10:30:45 [ERROR] Inventory sync failed with warehouse system`,
+                    manufacturing: `2024-03-15 10:30:05 [INFO] Production line #3 started
+2024-03-15 10:30:10 [ERROR] Temperature sensor failure on Unit A-123
+2024-03-15 10:30:15 [WARN] Preventive maintenance due: Machine B-456
+2024-03-15 10:30:20 [ERROR] Quality check failed: Batch XYZ-789
+2024-03-15 10:30:25 [INFO] Raw material inventory updated
+2024-03-15 10:30:30 [WARN] Production speed below target: Line #2
+2024-03-15 10:30:35 [ERROR] Emergency stop triggered: Unit C-789
+2024-03-15 10:30:40 [INFO] Shift change completed: Team Alpha
+2024-03-15 10:30:45 [WARN] Energy consumption peak detected
+2024-03-15 10:30:50 [ERROR] Component supplier feed interrupted`
+                };
+
+                const metricsData = {
+                    tech: { errorRate: '4.2%', cpuLoad: '85%', memory: '78%' },
+                    ecommerce: { errorRate: '3.8%', conversion: '2.4%', uptime: '99.9%' },
+                    manufacturing: { errorRate: '2.1%', efficiency: '82%', quality: '96%' }
+                };
+
+                const insightsData = {
+                    tech: [
+                        { type: 'error', title: 'Critical Pattern: Database Connectivity', desc: 'Recurring database connection issues detected. Possible memory leak in connection pool.' },
+                        { type: 'warning', title: 'Performance Alert', desc: 'High memory usage coincides with transaction failures. Consider scaling resources.' },
+                        { type: 'info', title: 'System Health', desc: 'API rate limits and cache performance need attention.' }
+                    ],
+                    ecommerce: [
+                        { type: 'error', title: 'Payment Processing Issues', desc: 'Multiple payment failures detected. Payment gateway stability needs investigation.' },
+                        { type: 'warning', title: 'Cart Abandonment Spike', desc: 'Cart abandonment rate 20% above baseline. Review checkout flow.' },
+                        { type: 'info', title: 'Inventory Status', desc: 'Low stock warnings for high-demand items. Reorder recommended.' }
+                    ],
+                    manufacturing: [
+                        { type: 'error', title: 'Quality Control Alert', desc: 'Batch failure rate exceeds threshold. Check calibration on Line #3.' },
+                        { type: 'warning', title: 'Maintenance Required', desc: 'Preventive maintenance overdue for 2 critical systems.' },
+                        { type: 'info', title: 'Production Efficiency', desc: 'Output rate 5% below target. Optimization opportunity identified.' }
+                    ]
+                };
+
+                let currentChart = null;
+
+                function updateChart() {
+                    const ctx = document.getElementById('anomalyChart').getContext('2d');
+                    const data = {
+                        labels: Array.from({length: 12}, (_, i) => `${i*5}m`),
+                        datasets: [{
+                            label: 'System Load',
+                            data: Array.from({length: 12}, () => Math.random() * 100),
+                            borderColor: '#FF5A5F',
+                            tension: 0.4,
+                            fill: false
+                        }, {
+                            label: 'Anomaly Threshold',
+                            data: Array.from({length: 12}, () => 85),
+                            borderColor: '#FFB800',
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            fill: false
+                        }]
+                    };
+
+                    if (currentChart) {
+                        currentChart.destroy();
+                    }
+
+                    currentChart = new Chart(ctx, {
+                        type: 'line',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { color: '#A0A0A0' }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    suggestedMax: 100,
+                                    grid: { color: '#2A2A2A' },
+                                    ticks: { color: '#A0A0A0' }
+                                },
+                                x: {
+                                    grid: { color: '#2A2A2A' },
+                                    ticks: { color: '#A0A0A0' }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Initialize event listeners and initial state
+                document.getElementById('logInput').value = logData.tech;
+
+                document.querySelectorAll('.demo-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        document.querySelector('.results').classList.remove('visible');
+
+                        const type = e.target.dataset.type;
+                        document.getElementById('logInput').value = logData[type];
+
+                        // Update metrics
+                        const metrics = metricsData[type];
+                        const metricDivs = document.querySelectorAll('.metric');
+                        Object.keys(metrics).forEach((key, index) => {
+                            metricDivs[index].querySelector('.metric-label').textContent = key.replace(/([A-Z])/g, ' $1').toUpperCase();
+                            metricDivs[index].querySelector('.metric-value').textContent = metrics[key];
+                        });
+
+                        // Update insights
+                        const insights = insightsData[type];
+                        document.querySelector('.insights').innerHTML = insights.map(insight => `
+                            <div class="insight ${insight.type}">
+                                <h4>${insight.title}</h4>
+                                <p>${insight.desc}</p>
+                            </div>
+                        `).join('');
+                    });
+                });
+
+                document.querySelector('.analyze-btn').addEventListener('click', () => {
+                    document.querySelector('.results').classList.add('visible');
+                    updateChart();
+                });
+
+                return { updateChart };
+            })();
+        });
+    </script>
+
+
+            </body>
